@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetrel Emergência - Gerador de Relatórios</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7fc',
+                            100: '#e0eff9',
+                            500: '#00629b', // Azul Oficial Cetrel
+                            600: '#005080',
+                            700: '#003e65',
+                            800: '#002d4a',
+                            900: '#001c30',
+                        },
+                        solviGreen: {
+                            100: '#e6f3ec',
+                            500: '#008542', // Verde Oficial Solví
+                            600: '#006b35',
+                            700: '#005228',
+                        },
+                        solviYellow: {
+                            500: '#ffb81c', // Amarelo Oficial Solví
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar style */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00629b;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 flex flex-col font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 shrink-0 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <!-- Cetrel Solví Official Logo SVG Representation -->
+                <div class="bg-white px-3 py-2 rounded-xl shadow-lg flex items-center justify-center">
+                    <svg viewBox="0 0 175 66" class="h-9 w-auto select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- "Cetrel" Bold text in brand blue -->
+                        <text x="2" y="38" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="34" fill="#00629b" letter-spacing="-1.5">Cetrel</text>
+                        <!-- "solví" Bold text in green -->
+                        <text x="54" y="56" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="16" fill="#008542" letter-spacing="-0.5">solví</text>
+                        
+                        <!-- Three-part leaf symbol -->
+                        <g transform="translate(10, -5)">
+                            <!-- Top Blue Leaf -->
+                            <path d="M 105,42 C 112,32 125,20 142,16 C 158,12 165,18 165,18 C 165,18 152,36 132,41 C 118,44 110,42 105,42 Z" fill="#00629b"/>
+                            <!-- Middle Yellow Leaf -->
+                            <path d="M 104,43 C 111,46 122,49 137,48 C 151,47 159,38 159,38 C 159,38 150,51 133,53 C 120,54 110,49 104,43 Z" fill="#ffb81c"/>
+                            <!-- Bottom Green Leaf -->
+                            <path d="M 104,45 C 112,53 124,61 139,63 C 154,65 160,55 160,55 C 160,55 146,70 129,68 C 115,66 107,55 104,45 Z" fill="#008542"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="hidden sm:block border-l border-slate-800 pl-3">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Cetrel Emergência</p>
+                    <p class="text-[10px] text-slate-500">Inspeção Mensal & Plano de Ação</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- PWA Installation Badge -->
+                <button id="pwaInstallBtn" class="hidden items-center space-x-1.5 bg-brand-500/20 hover:bg-brand-500 text-brand-100 hover:text-white px-3 py-1.5 rounded-lg border border-brand-500/30 transition-all text-xs font-semibold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>Instalar App</span>
+                </button>
+                
+                <span id="saveStatus" class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1.5 rounded-md flex items-center space-x-1">
+                    <span class="w-2 h-2 rounded-full bg-solviGreen-500 inline-block animate-pulse"></span>
+                    <span>Guardado localmente</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-y-auto">
+        
+        <!-- Column 1: Editor Form (7 cols on large screens) -->
+        <section class="lg:col-span-7 space-y-6">
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Dados do Relatório
+                    </h2>
+                    <button type="button" id="btnReset" class="text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20 transition-all flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Limpar Dados
+                    </button>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Estação -->
+                    <div class="space-y-1">
+                        <label for="estacao" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Estação</label>
+                        <input type="text" id="estacao" placeholder="Ex: Estação de Tratamento A" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+                    </div>
+
+                    <!-- Data -->
+                    <div class="space-y-1">
+                        <label for="data" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Data</label>
+                        <input type="date" id="data" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+                    </div>
+
+                    <!-- Cliente -->
+                    <div class="space-y-1">
+                        <label for="cliente" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Cliente</label>
+                        <input type="text" id="cliente" placeholder="Ex: Braskem / Unidade Sul" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+                    </div>
+
+                    <!-- Equipa de Emergência -->
+                    <div class="space-y-1">
+                        <label for="equipe" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Equipa de Emergência</label>
+                        <input type="text" id="equipe" placeholder="Ex: Alfa - Supervisor Silva, Resgatistas Costa e Neves" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <!-- Objetivo -->
+                    <div class="space-y-1">
+                        <label for="objetivo" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Objetivo</label>
+                        <textarea id="objetivo" rows="3" placeholder="Insira o objetivo principal da inspeção..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition resize-none"></textarea>
+                    </div>
+
+                    <!-- Detalhamento -->
+                    <div class="space-y-1">
+                        <label for="detalhamento" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Detalhamento</label>
+                        <textarea id="detalhamento" rows="4" placeholder="Descreva os detalhes observados durante a inspeção..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition resize-none"></textarea>
+                    </div>
+
+                    <!-- Manutenções Realizadas -->
+                    <div class="space-y-1">
+                        <label for="manutencoes" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Manutenções Realizadas pela Equipa</label>
+                        <textarea id="manutencoes" rows="3" placeholder="Insira as ações de manutenção efetuadas..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition resize-none"></textarea>
+                    </div>
+
+                    <!-- Conclusão -->
+                    <div class="space-y-1">
+                        <label for="conclusao" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Conclusão</label>
+                        <textarea id="conclusao" rows="3" placeholder="Conclusão geral do estado da estação..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Plan Section -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-solviYellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        Plano de Ação
+                    </h2>
+                    <button type="button" id="btnAddAction" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 transition-all shadow-md shadow-brand-900/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Adicionar Ação
+                    </button>
+                </div>
+
+                <div id="actionPlanContainer" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    <!-- Dinamically injected action items -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: Live Preview & Action panel (5 cols on large screens) -->
+        <section class="lg:col-span-5 flex flex-col space-y-6">
+            
+            <!-- Floating control pane -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 shadow-xl flex flex-col space-y-4">
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Ações Rápidas</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Copy WhatsApp Button -->
+                    <button type="button" id="btnCopy" class="col-span-2 bg-solviGreen-600 hover:bg-solviGreen-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2.5 transition-all transform active:scale-95 shadow-lg shadow-emerald-950/50">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.62.962 3.21 1.6 5.353 1.601 5.437.002 9.861-4.42 9.864-9.86.002-2.635-1.023-5.11-2.884-6.974C17.06 2.057 14.58 1.031 11.956 1.03 6.518 1.03 2.1 5.449 2.1 10.887c-.001 2.032.531 4.02 1.54 5.779l-.994 3.63 3.725-.976zM15.8 13.06c-.323-.16-1.914-.943-2.21-1.05-.297-.107-.513-.16-.73.16-.215.323-.834 1.05-.1.022 1.22-.162 2.11-.11 2.536s.216.513.107.729c-.108.216-.485.324-.835.163-.35-.16-1.482-.546-2.823-1.745-1.043-.93-1.747-2.08-1.952-2.43-.205-.353-.022-.544.153-.718.157-.156.353-.41.53-.615.176-.205.236-.35.353-.584.117-.234.059-.439-.03-.597-.087-.16-.73-1.758-.999-2.414-.263-.637-.53-.55-.73-.56h-.624c-.215 0-.564.08-.86.41-.296.324-1.13 1.107-1.13 2.7 0 1.59 1.157 3.125 1.318 3.342.162.216 2.278 3.48 5.518 4.88.77.332 1.373.53 1.842.68.773.245 1.478.21 2.033.128.62-.093 1.914-.783 2.183-1.538.27-.755.27-1.402.19-1.538-.08-.135-.297-.215-.62-.375z"/>
+                        </svg>
+                        Copiar para WhatsApp
+                    </button>
+                    
+                    <!-- View Offline Toggle/Status -->
+                    <div class="col-span-2 flex items-center justify-between bg-slate-900 rounded-lg p-3 border border-slate-800 text-xs text-slate-400">
+                        <span>Estado Offline:</span>
+                        <span id="networkStatus" class="font-semibold flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-solviGreen-500"></span> Online
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Preview Wrapper (Simulates WhatsApp screen) -->
+            <div class="flex-1 bg-[#0b141a] rounded-2xl border border-slate-800 overflow-hidden flex flex-col shadow-xl min-h-[400px]">
+                
+                <!-- Chat Header -->
+                <div class="bg-[#202c33] px-4 py-3 flex items-center space-x-3 shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                        CE
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-100">Grupo Cetrel Emergência</h4>
+                        <p class="text-xs text-solviGreen-500">online</p>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="flex-1 p-4 bg-cover bg-center overflow-y-auto space-y-4 flex flex-col justify-start" style="background-image: radial-gradient(#111b21 60%, #0b141a 100%);">
+                    
+                    <!-- Date stamp -->
+                    <div class="self-center bg-[#182229] text-slate-400 text-[11px] px-2.5 py-1 rounded-md shadow-sm">
+                        HOJE
+                    </div>
+
+                    <!-- Message Bubble -->
+                    <div class="self-end max-w-[85%] bg-[#005c4b] text-[#e9edef] rounded-lg p-3 shadow-md relative group">
+                        
+                        <!-- Formatted Preview -->
+                        <div id="previewText" class="text-xs whitespace-pre-wrap font-mono leading-relaxed break-all">
+                            <!-- Live text goes here -->
+                        </div>
+
+                        <!-- Mini indicator inside bubble -->
+                        <div class="flex items-center justify-end space-x-1 mt-1 text-[10px] text-[#8696a0]">
+                            <span id="bubbleTime">12:00</span>
+                            <svg class="w-4 h-4 text-[#53bdeb]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-950 text-slate-100 border border-slate-800 rounded-xl px-4 py-3 shadow-2xl flex items-center space-x-3">
+            <div class="bg-solviGreen-500/20 text-solviGreen-500 p-1.5 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <div>
+                <p id="toastMessage" class="text-sm font-semibold">Copiado com sucesso!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog Modal -->
+    <div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-rose-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <h4 class="font-bold text-lg text-slate-200">Limpar Formulário?</h4>
+            </div>
+            <p class="text-sm text-slate-400">Esta ação irá apagar todos os dados inseridos e o plano de ação. Esta operação não pode ser desfeita.</p>
+            <div class="flex space-x-3 pt-2">
+                <button id="btnCancelReset" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg transition text-sm">Cancelar</button>
+                <button id="btnConfirmReset" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2 rounded-lg transition text-sm">Limpar Tudo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Area -->
+    <script>
+        // State variables
+        let reportState = {
+            estacao: '',
+            data: '',
+            cliente: '',
+            equipe: '',
+            objetivo: '',
+            detalhamento: '',
+            manutencoes: '',
+            conclusao: '',
+            actions: []
+        };
+
+        // DOM elements
+        const fields = ['estacao', 'data', 'cliente', 'equipe', 'objetivo', 'detalhamento', 'manutencoes', 'conclusao'];
+        const actionPlanContainer = document.getElementById('actionPlanContainer');
+        const previewText = document.getElementById('previewText');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const confirmModal = document.getElementById('confirmModal');
+
+        // Setup Current Date as Default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('data').value = today;
+        reportState.data = today;
+
+        // Load data from LocalStorage if available
+        function loadFromStorage() {
+            const savedState = localStorage.getItem('cetrel_report_state');
+            if (savedState) {
+                try {
+                    const parsed = JSON.parse(savedState);
+                    reportState = { ...reportState, ...parsed };
+                    
+                    // Fill inputs
+                    fields.forEach(f => {
+                        const el = document.getElementById(f);
+                        if (el && reportState[f] !== undefined) {
+                            el.value = reportState[f];
+                        }
+                    });
+                    
+                    // Render action items
+                    renderActionItems();
+                } catch (e) {
+                    console.error("Erro a ler armazenamento local", e);
+                }
+            } else {
+                // Initial baseline action item if empty
+                reportState.actions = [];
+                renderActionItems();
+            }
+            updatePreview();
+        }
+
+        // Save State to LocalStorage
+        function saveToStorage() {
+            localStorage.setItem('cetrel_report_state', JSON.stringify(reportState));
+            showSaveIndicator();
+        }
+
+        // Visual Save Indicator
+        function showSaveIndicator() {
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-solviGreen-500 inline-block"></span>
+                <span>Dados guardados</span>
+            `;
+            setTimeout(() => {
+                saveStatus.innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-slate-600 inline-block"></span>
+                    <span>Guardado localmente</span>
+                `;
+            }, 2000);
+        }
+
+        // Dynamic Action Plan Management
+        function renderActionItems() {
+            actionPlanContainer.innerHTML = '';
+            
+            if (reportState.actions.length === 0) {
+                actionPlanContainer.innerHTML = `
+                    <div class="text-center py-6 text-slate-500 border border-dashed border-slate-800 rounded-xl bg-slate-900/30">
+                        <svg class="w-8 h-8 mx-auto opacity-40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        <p class="text-xs font-semibold">Nenhuma ação planeada para este período.</p>
+                        <p class="text-[10px] text-slate-600">Adicione uma ação para acompanhar as melhorias.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            reportState.actions.forEach((action, index) => {
+                const actionCard = document.createElement('div');
+                actionCard.className = "p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-3 relative group transition hover:border-slate-700";
+                
+                actionCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-brand-500">AÇÃO #${index + 1}</span>
+                        <button type="button" onclick="deleteAction(${index})" class="text-slate-500 hover:text-rose-400 p-1 hover:bg-rose-500/10 rounded transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <input type="text" value="${escapeHtml(action.descricao)}" placeholder="O que fazer?" oninput="updateActionValue(${index}, 'descricao', this.value)" class="w-full bg-slate-950 border border-slate-750 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input type="text" value="${escapeHtml(action.responsavel)}" placeholder="Quem?" oninput="updateActionValue(${index}, 'responsavel', this.value)" class="w-full bg-slate-950 border border-slate-750 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                            
+                            <input type="text" value="${escapeHtml(action.prazo)}" placeholder="Quando?" oninput="updateActionValue(${index}, 'prazo', this.value)" class="w-full bg-slate-950 border border-slate-750 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                            
+                            <select onchange="updateActionValue(${index}, 'status', this.value)" class="w-full bg-slate-950 border border-slate-750 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                <option value="Pendente" ${action.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                                <option value="Em Andamento" ${action.status === 'Em Andamento' ? 'selected' : ''}>Em Curso</option>
+                                <option value="Concluido" ${action.status === 'Concluido' ? 'selected' : ''}>Concluído</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                
+                actionPlanContainer.appendChild(actionCard);
+            });
+        }
+
+        function addAction() {
+            reportState.actions.push({
+                descricao: '',
+                responsavel: '',
+                prazo: '',
+                status: 'Pendente'
+            });
+            renderActionItems();
+            saveToStorage();
+            updatePreview();
+            
+            // Scroll to bottom of action items
+            actionPlanContainer.scrollTop = actionPlanContainer.scrollHeight;
+        }
+
+        window.deleteAction = function(index) {
+            reportState.actions.splice(index, 1);
+            renderActionItems();
+            saveToStorage();
+            updatePreview();
+        };
+
+        window.updateActionValue = function(index, field, value) {
+            reportState.actions[index][field] = value;
+            saveToStorage();
+            updatePreview();
+        };
+
+        // Escape HTML to prevent injection issues in preview rendering
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Setup live inputs listening
+        fields.forEach(fieldId => {
+            const el = document.getElementById(fieldId);
+            if (el) {
+                el.addEventListener('input', (e) => {
+                    reportState[fieldId] = e.target.value;
+                    saveToStorage();
+                    updatePreview();
+                });
+            }
+        });
+
+        // Time updates for the preview panel
+        function updateBubbleTime() {
+            const now = new Date();
+            const hrs = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('bubbleTime').innerText = `${hrs}:${mins}`;
+        }
+        setInterval(updateBubbleTime, 30000);
+        updateBubbleTime();
+
+        // Convert Report State to formatted WhatsApp layout
+        function buildWhatsAppMessage() {
+            // Helper to handle dates
+            let formattedDate = '';
+            if (reportState.data) {
+                const parts = reportState.data.split('-');
+                if (parts.length === 3) {
+                    formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+            }
+
+            let msg = `*RELATÓRIO DE INSPEÇÃO MENSAL - CETREL EMERGÊNCIA*\n\n`;
+            msg += `*ESTAÇÃO:* ${reportState.estacao || 'Não especificada'}\n`;
+            msg += `*DATA:* ${formattedDate || 'Não informada'}\n`;
+            msg += `*CLIENTE:* ${reportState.cliente || 'Não especificado'}\n`;
+            msg += `*EQUIPE DE EMERGÊNCIA:* ${reportState.equipe || 'Não informada'}\n\n`;
+            
+            msg += `*OBJETIVO*\n${reportState.objetivo || 'Não informado.'}\n\n`;
+            msg += `*DETALHAMENTO*\n${reportState.detalhamento || 'Nenhum detalhe inserido.'}\n\n`;
+            msg += `*MANUTENÇÕES REALIZADAS PELA EQUIPE*\n${reportState.manutencoes || 'Nenhuma manutenção realizada.'}\n\n`;
+            msg += `*CONCLUSÃO*\n${reportState.conclusao || 'Nenhuma conclusão inserida.'}\n\n`;
+            
+            msg += `*PLANO DE AÇÃO*`;
+            
+            if (reportState.actions && reportState.actions.length > 0) {
+                msg += `\n`;
+                reportState.actions.forEach((act, i) => {
+                    const desc = act.descricao || 'Sem descrição';
+                    const resp = act.responsavel ? ` - Resp: ${act.responsavel}` : '';
+                    const prz = act.prazo ? ` | Prazo: ${act.prazo}` : '';
+                    const statusEmoji = act.status === 'Concluido' ? '✅' : act.status === 'Em Andamento' ? '⏳' : '❌';
+                    msg += `\n${statusEmoji} ${i+1}. ${desc}${resp}${prz}`;
+                });
+            } else {
+                msg += `\nNenhuma ação corretiva pendente ou registada.`;
+            }
+            
+            return msg;
+        }
+
+        // Live preview generation
+        function updatePreview() {
+            const rawMessage = buildWhatsAppMessage();
+            
+            // Map simple bold pattern of WhatsApp to HTML tags for real visual presentation
+            let htmlSafe = escapeHtml(rawMessage);
+            
+            // Apply bolder format tags
+            htmlSafe = htmlSafe.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+            
+            previewText.innerHTML = htmlSafe;
+        }
+
+        // Copy functionality utilizing optimal compatibility
+        document.getElementById('btnCopy').addEventListener('click', () => {
+            const payloadText = buildWhatsAppMessage();
+            
+            // Standard copy block
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = payloadText;
+            tempTextArea.style.position = 'fixed';
+            tempTextArea.style.top = '0';
+            tempTextArea.style.left = '0';
+            tempTextArea.style.opacity = '0';
+            document.body.appendChild(tempTextArea);
+            tempTextArea.focus();
+            tempTextArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Copiado com sucesso! Pronto para colar no WhatsApp.');
+                } else {
+                    showToast('Erro ao copiar automaticamente. Tente selecionar o texto e copiar.');
+                }
+            } catch (err) {
+                console.error('Falha de execução do comando copiar', err);
+                showToast('Falha na cópia automática.');
+            }
+            
+            document.body.removeChild(tempTextArea);
+        });
+
+        // Toast Helper
+        function showToast(message) {
+            toastMessage.innerText = message;
+            toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none";
+            }, 3000);
+        }
+
+        // Reset system triggers
+        const btnReset = document.getElementById('btnReset');
+        const btnCancelReset = document.getElementById('btnCancelReset');
+        const btnConfirmReset = document.getElementById('btnConfirmReset');
+
+        btnReset.addEventListener('click', () => {
+            confirmModal.classList.remove('hidden');
+        });
+
+        btnCancelReset.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+        });
+
+        btnConfirmReset.addEventListener('click', () => {
+            localStorage.removeItem('cetrel_report_state');
+            reportState = {
+                estacao: '',
+                data: today,
+                cliente: '',
+                equipe: '',
+                objetivo: '',
+                detalhamento: '',
+                manutencoes: '',
+                conclusao: '',
+                actions: []
+            };
+            
+            fields.forEach(f => {
+                const el = document.getElementById(f);
+                if (el) el.value = (f === 'data' ? today : '');
+            });
+            
+            renderActionItems();
+            updatePreview();
+            confirmModal.classList.add('hidden');
+            showToast('Formulário redefinido com sucesso!');
+        });
+
+        // Add action btn bind
+        document.getElementById('btnAddAction').addEventListener('click', addAction);
+
+        // Network Status Event listeners
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        function updateNetworkStatus() {
+            const statusEl = document.getElementById('networkStatus');
+            if (navigator.onLine) {
+                statusEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-solviGreen-500"></span> Online`;
+            } else {
+                statusEl.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> Offline`;
+            }
+        }
+        updateNetworkStatus();
+
+        // Dynamically inject/configure PWA structure
+        function initializePWA() {
+            // Build the manifest dynamically
+            const manifestObj = {
+                name: "Cetrel Emergência - Relatórios",
+                short_name: "Cetrel Relatórios",
+                description: "App para elaboração rápida de relatórios offline da Cetrel Emergência",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#0f172a",
+                theme_color: "#00629b",
+                icons: [
+                    {
+                        src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%2300629b'><rect width='100' height='100' rx='20'/><path d='M30,50 H70 M50,30 V70' stroke='white' stroke-width='10' stroke-linecap='round'/></svg>",
+                        sizes: "192x192",
+                        type: "image/svg+xml"
+                    },
+                    {
+                        src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%2300629b'><rect width='100' height='100' rx='25'/><path d='M30,50 H70 M50,30 V70' stroke='white' stroke-width='10' stroke-linecap='round'/></svg>",
+                        sizes: "512x512",
+                        type: "image/svg+xml"
+                    }
+                ]
+            };
+
+            const manifestStr = JSON.stringify(manifestObj);
+            const blob = new Blob([manifestStr], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestURL;
+            document.head.appendChild(link);
+
+            // Register inline mock Service Worker for PWA requirements
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'cetrel-v2';
+                    const ASSETS = [
+                        '${window.location.pathname}',
+                        'https://cdn.tailwindcss.com'
+                    ];
+
+                    self.addEventListener('install', (e) => {
+                        self.skipWaiting();
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then((cache) => {
+                                return cache.addAll(ASSETS).catch(() => {});
+                            })
+                        );
+                    });
+
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(clients.claim());
+                    });
+
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                return response || fetch(e.request).catch(() => {
+                                    return new Response('Rede indisponível. Funcionalidade limitada instalada offline.', {
+                                        headers: { 'Content-Type': 'text/plain' }
+                                    });
+                                });
+                            })
+                        );
+                    });
+                `;
+
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                const swUrl = URL.createObjectURL(swBlob);
+
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl)
+                        .then(() => console.log('Service Worker Registado com sucesso (Blob)'))
+                        .catch(err => console.log('Falha no registo do SW (Normal em iFrames locais)', err));
+                });
+            }
+        }
+
+        // Handle PWA installation banners
+        let deferredPrompt;
+        const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaInstallBtn.classList.remove('hidden');
+            pwaInstallBtn.classList.add('flex');
+        });
+
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('Utilizador aceitou instalação');
+                }
+                deferredPrompt = null;
+                pwaInstallBtn.classList.add('hidden');
+                pwaInstallBtn.classList.remove('flex');
+            }
+        });
+
+        // Initialize state loads
+        window.addEventListener('DOMContentLoaded', () => {
+            initializePWA();
+            loadFromStorage();
+        });
+    </script>
+</body>
+</html>
